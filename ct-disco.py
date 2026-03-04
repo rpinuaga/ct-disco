@@ -488,6 +488,11 @@ def main(argv=None):
     except KeyboardInterrupt:
         sys.stdout.write("\n--Interrupted\n")
 
+    except Exception as e:
+        sys.stderr.write(f"Error: {e}\n")
+        sys.stderr.flush()
+        raise
+
     finally:
         elapsed = time.time() - start_time
         rate = int(total_scanned / elapsed) if elapsed > 0 else 0
@@ -499,10 +504,6 @@ def main(argv=None):
             f"{skip_summary} in {elapsed:.1f}s  (~{rate:,} entries/s){found_summary}\n"
         )
         sys.stdout.flush()
-    except Exception as e:
-        sys.stderr.write(f"Error: {e}\n")
-        sys.stderr.flush()
-        raise
 
 
 if __name__ == '__main__':
