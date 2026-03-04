@@ -484,6 +484,11 @@ def main(argv=None):
                     sys.stdout.flush()
 
         sys.stdout.write("\n--EOF\n")
+
+    except KeyboardInterrupt:
+        sys.stdout.write("\n--Interrupted\n")
+
+    finally:
         elapsed = time.time() - start_time
         rate = int(total_scanned / elapsed) if elapsed > 0 else 0
         skip_summary = f"  ({skipped} log(s) skipped)" if skipped else ""
@@ -493,10 +498,6 @@ def main(argv=None):
             f"Scanned {total_scanned:,} entries across {workers_launched} log(s)"
             f"{skip_summary} in {elapsed:.1f}s  (~{rate:,} entries/s){found_summary}\n"
         )
-        sys.stdout.flush()
-
-    except KeyboardInterrupt:
-        sys.stdout.write("\n--Interrupted\n")
         sys.stdout.flush()
     except Exception as e:
         sys.stderr.write(f"Error: {e}\n")
