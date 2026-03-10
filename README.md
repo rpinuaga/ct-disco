@@ -34,7 +34,7 @@ python ct-disco.py [options]
 
 | Flag | Default | Description |
 |------|---------|-------------|
-| `-k` / `--keyword` | `skyscanner` | Keyword to search for in hostnames |
+| `-k` / `--keyword` | `www` | Keyword to search for in hostnames |
 | `--start` | random | Starting entry index (single-log mode only; overrides the randomised value) |
 | `--max` | `1000` | Maximum entries to scan **per log** |
 | `--batch-size` | `1000` | Entries fetched per API request |

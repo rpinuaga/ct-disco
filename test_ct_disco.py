@@ -50,10 +50,10 @@ class TestExtractDomainsFromBinary(unittest.TestCase):
 
     def test_multiple_domains(self):
         """Multiple domains (SANs) are all extracted."""
-        data = b'\x00app.skyscanner.com\x00api.skyscanner.net\x00'
+        data = b'\x00app.example.com\x00api.example.net\x00'
         domains = extract_domains_from_binary(data)
-        self.assertIn('app.skyscanner.com', domains)
-        self.assertIn('api.skyscanner.net', domains)
+        self.assertIn('app.example.com', domains)
+        self.assertIn('api.example.net', domains)
 
     def test_new_gtld(self):
         """New gTLDs outside the old hand-curated set are now recognised."""
@@ -72,8 +72,8 @@ class TestExtractDomainsFromBinary(unittest.TestCase):
 
     def test_wildcard_not_extracted(self):
         """Wildcard prefix (*.) is not matched — regex requires [a-z0-9] start."""
-        data = b'\x00*.skyscanner.com\x00'
-        self.assertNotIn('*.skyscanner.com', extract_domains_from_binary(data))
+        data = b'\x00*.example.com\x00'
+        self.assertNotIn('*.example.com', extract_domains_from_binary(data))
 
     def test_ip_like_domain_rejected(self):
         """
