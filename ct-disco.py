@@ -274,8 +274,8 @@ def build_arg_parser():
         description='Certificate Transparency Log domain discovery — find hostnames by keyword.'
     )
     parser.add_argument(
-        '-k', '--keyword', default='skyscanner',
-        help='Keyword to search for in domains. Default: skyscanner',
+        '-k', '--keyword', default='www',
+        help='Keyword to search for in domains. Default: www',
     )
     parser.add_argument('-v', '--verbose', action='store_true', help='Enable verbose diagnostics.')
     parser.add_argument(
