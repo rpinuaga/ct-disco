@@ -1,0 +1,82 @@
+# AWS-related domain suffix/substring patterns for CT log filtering.
+# Match style: substring match against the full domain (as ct-disco.py's -k does).
+# Grouped by confidence/purpose. Verified against docs.aws.amazon.com/general/latest/gr/rande.html (2026-08-12).
+
+## Core service endpoints (highest volume — regional API endpoints)
+amazonaws.com
+amazonaws.com.cn          # China (Beijing/Ningxia) regions
+api.aws                   # newer dual-stack endpoint suffix: {service}.{region}.api.aws
+
+## S3-specific (buckets are a huge share of AWS-issued/observed certs)
+s3.amazonaws.com
+s3-website
+s3.dualstack.
+s3-accelerate.amazonaws.com
+s3-fips.
+
+## CloudFront (CDN — extremely high cert volume, distinct suffix from amazonaws.com)
+cloudfront.net
+
+## Elastic Load Balancing / compute-adjacent
+elb.amazonaws.com
+elb.
+awsglobalaccelerator.com
+
+## App hosting / PaaS branded domains
+elasticbeanstalk.com
+awsapprunner.com
+amplifyapp.com
+execute-api.                # API Gateway invoke URLs: {api-id}.execute-api.{region}.amazonaws.com
+
+## Managed workspace / productivity
+awsapps.com                  # WorkMail, WorkSpaces, Chime, IAM Identity Center portals
+
+## Link shortener / redirects
+on.aws
+
+## .aws TLD — the ENTIRE TLD is AWS-restricted, no enumeration needed.
+## IANA root zone db (iana.org/domains/root/db/aws.html) lists the sponsoring org as
+## "AWS Registry LLC" — .aws is a closed generic TLD; only Amazon can register under it.
+## So any hostname ending in ".aws" is AWS-owned by definition — matching on the bare
+## suffix ".aws" (or just checking the TLD) covers all of them, present and future,
+## without needing a name list. ct-disco.py's tlds.py already includes 'aws' as a
+## valid TLD, so its domain-extraction regex already captures *.aws hostnames; only
+## the -k keyword filter needs to target ".aws" to surface them.
+##
+## Confirmed live examples (via DNS + TLS SAN, 2026-08-12) — illustrative, not exhaustive:
+##   ecr.aws              public.ecr.aws (image pull), gallery.ecr.aws (gallery)
+##   signin.aws           us-east-1.signin.aws, update.signin.aws, verify.signin.aws,
+##                         us-east-1.api.signin.aws  (region + api subdomain pattern)
+##   community.aws        buildon.aws, *.buildon.aws  (sibling brand via same cert)
+##   skillbuilder.aws      www.skillbuilder.aws
+##   repost.aws            *.repost.aws
+##   startups.aws
+##   amplify.aws           *.amplify.aws
+##   quicksight.aws        www.quicksight.aws
+##   codecatalyst.aws
+##   ml.aws                www.ml.aws
+##   ecs.aws               www.ecs.aws
+##   calculator.aws        www.us-east-1.prod.pricing.calculator.aws
+##
+## Note: console.aws, docs.aws, health.aws, api.aws (bare), builder.aws, catalog.aws,
+## partnercentral.aws do NOT resolve as of this check — those services are under
+## amazonaws.com / api.aws (region-suffixed) instead. Don't assume a plausible-sounding
+## .aws name exists without checking (`python -c "import socket; socket.gethostbyname(d)"`).
+
+## Marketing / static assets / docs (still AWS-operated infra, lower relevance for "service" discovery)
+awsstatic.com
+amazonwebservices.com
+amazon-aws.org               # rare, watch for typosquats too if doing threat-hunting
+
+## GovCloud variant (still under amazonaws.com but distinct region codes)
+# us-gov-east-1, us-gov-west-1 — covered by amazonaws.com base pattern, no separate suffix
+
+## Notes
+# - "amazonaws.com" alone will dominate matches (regional API + S3 + ELB + Lambda URLs + many more
+#   all live under it). If the goal is coverage, scanning for "amazonaws.com" and "cloudfront.net"
+#   alone likely captures >90% of AWS-attributable certs.
+# - ct-disco.py currently supports one keyword at a time (-k). To check all patterns in one pass,
+#   either run multiple scans or extend the script to accept a list/regex of keywords.
+# - This list identifies AWS *infrastructure* domains appearing as SANs in certs (i.e. companies'
+#   own certs issued for their AWS-hosted subdomains, or AWS's own certs for its endpoints) — not
+#   AWS account IDs or ARNs, which don't appear in certificate SANs at all.
